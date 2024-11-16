@@ -151,8 +151,9 @@ int estCorrect(Mat& orgImg0, Mat& correctImg, float cutoffF, float margin){
     //c,d : Rectangle width and height.
     printf("int(margin*w) = %d\n", int(margin*w));
     printf("int(w-margin*w) = %d\n", int(w-margin*w));
-
-    cv::Rect crop_region(int(margin*w), 0 ,int(w-2*margin*w), h-1);
+    int corp_w=int(w-2*margin*w);
+    int corp_h=h-1;
+    cv::Rect crop_region(int(margin*w), 0 ,corp_w, corp_h);
 // specifies the region of interest in Rectangle form
 
     Mat crop_img=orgImg(crop_region);
@@ -234,7 +235,9 @@ int estCorrect(Mat& orgImg0, Mat& correctImg, float cutoffF, float margin){
     //print(maxIndex)
     float offsetDegree=(maxIndex-50.0)/100.0*3.14;
     printf("offsetDegree =%f\n", offsetDegree);
-    float aEst=sin(offsetDegree);
+    float rec_offsetDegree=atan(tan(offsetDegree)*corp_h/corp_w);
+    printf("rec_offsetDegree =%f\n", rec_offsetDegree);
+    float aEst=sin(rec_offsetDegree);
     printf("aEst =%f\n", aEst);
     //Mat correctImg;
     imgWrapA(orgImg0, correctImg, aEst);
