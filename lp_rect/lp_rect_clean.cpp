@@ -5,8 +5,13 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "iostream"
+#include <chrono>
 
 using namespace cv;
+using namespace std;
+using namespace std::chrono;
+#define __NLM__
+#undef  __NLM__
 
 int getPloarPeak(Mat &lineMat){
     std::vector<float> coefficient;
@@ -94,14 +99,21 @@ int imgWrapA(Mat& src, Mat& warp_dst, float A)
     warpAffine(src, warp_dst, warp_mat, warp_dst.size());
     return 0;
 }
- 
+
+#ifdef __NLM__
 int estCorrect(Mat& orgImg0, Mat& correctImg, float cutoffF, float margin){
     Mat orgImg;
     fastNlMeansDenoisingColored(orgImg0,orgImg,9,9,7,21);
+#else
+int estCorrect(Mat& orgImg, Mat& correctImg, float cutoffF, float margin){
+#endif
     Size s = orgImg.size();
     int w= s.width;
     int h= s.height;
-    cv::Rect crop_region(int(margin*w), 0 ,int(w-2*margin*w), h-1);
+    //cv::Rect crop_region(int(margin*w), 0 ,int(w-2*margin*w), h-1);
+    int corp_w=int(w-2*margin*w);
+    int corp_h=h-1;
+    cv::Rect crop_region(int(margin*w), 0 ,corp_w, corp_h);
     Mat crop_img=orgImg(crop_region);
     Mat img;
     cvtColor(crop_img, img, COLOR_BGR2GRAY);
@@ -111,10 +123,11 @@ int estCorrect(Mat& orgImg0, Mat& correctImg, float cutoffF, float margin){
     convertScaleAbs(y, absY);
     Mat magnitude_spectrum;
     my_fft(absY,magnitude_spectrum);
-    float marginPlor = 0.9;// # Cut off the outer 10% of the image
-    int size=min(img.rows, img.cols);
+    float marginPlor = 1.0;// # Cut off the outer 10% of the image
+    int size=min(magnitude_spectrum.rows, magnitude_spectrum.cols);
     Mat polar_img;
-    warpPolar(magnitude_spectrum,polar_img, Size(int(size/2), 200), Point(img.cols/2,img.rows/2), 
+    //warpPolar(magnitude_spectrum,polar_img, Size(int(size/2), 200), Point(img.cols/2,img.rows/2), 
+    warpPolar(magnitude_spectrum,polar_img, Size(int(size/2), 200), Point(magnitude_spectrum.cols/2,magnitude_spectrum.rows/2), 
                                   size*marginPlor*0.5, WARP_POLAR_LINEAR);
     float coreCut=0.01;
     Mat polar_img_lowF = polar_img(Range::all(), Range(int(coreCut*polar_img.cols),int(cutoffF*polar_img.cols))); 
@@ -127,9 +140,15 @@ int estCorrect(Mat& orgImg0, Mat& correctImg, float cutoffF, float margin){
     Mat polar_sum =polar_sum_200(Range(0,100),Range::all());
     polar_sum=polar_sum+polar_sum_200(Range(100,200),Range::all());
     int maxIndex=getPloarPeak(polar_sum);
-    float offsetDegree=(maxIndex-49.0)/100.0*3.14;
-    float aEst=sin(offsetDegree);
+    float offsetDegree=(maxIndex-50.0)/100.0*3.14;
+    float rec_offsetDegree=atan(tan(offsetDegree)*corp_h/corp_w);
+    float aEst=sin(rec_offsetDegree);
+#ifdef __NLM__
     imgWrapA(orgImg0, correctImg, aEst);
+#else
+    imgWrapA(orgImg, correctImg, aEst);
+#endif    //NLM: rename orgImg as orgImg0
+
 }
 
 int estCorrect2D(Mat& orgImg,Mat& hvCorrectedImg, float cutoffF,float margin){
@@ -151,7 +170,15 @@ int main(int argc, char** argv )
     }
     Mat orgImg = imread(argv[1]);
     Mat hvCorrectedImg; 
+    auto start = high_resolution_clock::now();
     estCorrect2D(orgImg, hvCorrectedImg, 0.8, 0.1);
+    // Stop timing
+    auto end = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(end - start);
+
+    // Output elapsed time
+    cout << "estCorrect2D execution time: " << duration.count() << " ms" << endl;
+
     imwrite("test.png", hvCorrectedImg);
     waitKey(0);
     return 0;

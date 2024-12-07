@@ -1,26 +1,25 @@
+# Compiler and Flags
 CXX = g++
-CXXFLAGS = -std=c++11  -Wall -g
-OPENCV_DIR=/usr/local/include/opencv4/
-OPENCV_BUILD_DIR=/usr/local/lib
+CXXFLAGS = -std=c++11 -Wall -g
 
-lp_rect: lp_rect.o 
-	$(CXX) $(CXXFLAGS) -v lp_rect.o  \
-	-L '$(OPENCV_BUILD_DIR)' \
-	-lopencv_photo \
-	-lopencv_core \
-	-lopencv_highgui \
-	-lopencv_imgcodecs \
-	-lopencv_imgproc \
-	-o lp_rect
+# OpenCV Paths
+OPENCV_DIR = /usr/local/include/opencv4/
+OPENCV_BUILD_DIR = /usr/local/lib
+OPENCV_LIBS = -lopencv_photo -lopencv_core -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc
 
-lp_rect.o: 
-	$(CXX) $(CXXFLAGS) \
-	-I$(OPENCV_DIR) \
-	-I$(OPENCV_DIR)opencv2/core \
-	-I$(OPENCV_DIR)opencv2/imgproc \
-	-I$(OPENCV_DIR)opencv2/imgcodecs \
-	-Wall -c lp_rect.cpp
+# Targets
+TARGETS = lp_rect lp_rect_clean
 
+all: $(TARGETS)
+
+lp_rect: lp_rect.o
+	$(CXX) $(CXXFLAGS) $< -L$(OPENCV_BUILD_DIR) $(OPENCV_LIBS) -o $@
+
+lp_rect_clean: lp_rect_clean.o
+	$(CXX) $(CXXFLAGS) $< -L$(OPENCV_BUILD_DIR) $(OPENCV_LIBS) -o $@
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -I$(OPENCV_DIR) -c $< -o $@
 
 clean:
-	rm lp_rect lp_rect.o 
+	rm -f $(TARGETS) *.o
