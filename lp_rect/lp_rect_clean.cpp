@@ -161,25 +161,50 @@ int estCorrect2D(Mat& orgImg,Mat& hvCorrectedImg, float cutoffF,float margin){
     estCorrect(hCorrectedImg90, vCorrectedImg, cutoffF, margin);
     rotate(vCorrectedImg, hvCorrectedImg, ROTATE_90_COUNTERCLOCKWISE);
 }
+
 int main(int argc, char** argv )
 {
     if ( argc != 2 )
     {
-        printf("usage: DisplayImage.out <Image_Path>\n");
+        printf("usage: lp_rect_clean <Image_Path>\n");
         return -1;
     }
+
+    // Read the input image
     Mat orgImg = imread(argv[1]);
+    if (orgImg.empty()) {
+        printf("Could not open or find the image.\n");
+        return -1;
+    }
+
+    // Process the image
     Mat hvCorrectedImg; 
-    auto start = high_resolution_clock::now();
     estCorrect2D(orgImg, hvCorrectedImg, 0.8, 0.1);
-    // Stop timing
-    auto end = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(end - start);
 
-    // Output elapsed time
-    cout << "estCorrect2D execution time: " << duration.count() << " ms" << endl;
+    // Extract the prefix from the input filename
+    std::string inputPath = argv[1];
+    std::string prefix;
+    size_t lastSlash = inputPath.find_last_of("/\\");
+    size_t start = (lastSlash == std::string::npos) ? 0 : lastSlash + 1;
+    size_t lastDot = inputPath.find_last_of(".");
+    size_t end = (lastDot == std::string::npos || lastDot < start) ? inputPath.length() : lastDot;
+    prefix = inputPath.substr(start, end - start);
 
-    imwrite("test.png", hvCorrectedImg);
+    // Construct the output filename
+    std::string outputPath = prefix + "_rect.jpg";
+
+    // Save the processed image
+    if (imwrite(outputPath, hvCorrectedImg)) {
+        printf("Output image saved as %s\n", outputPath.c_str());
+    } else {
+        printf("Failed to save the output image.\n");
+        return -1;
+    }
+
+    // Optionally display the image
+    // namedWindow("Corrected Image", WINDOW_AUTOSIZE );
+    // imshow("Corrected Image", hvCorrectedImg);
+
     waitKey(0);
     return 0;
 }

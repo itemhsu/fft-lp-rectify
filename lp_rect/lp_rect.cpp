@@ -5,7 +5,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "iostream"
-
+#include <string>
 
 using namespace cv;
 
@@ -318,36 +318,42 @@ int main(int argc, char** argv )
         return -1;
     }
 
-    //fftplotWarp(argv[1]);
-
+    // Read the input image
     Mat orgImg = imread(argv[1]);
-    //imshow("Display Image", orgImg);
-    //pix_color = np.array(orgImg)
-    //hCorrectedImg, CorrectedImg=estCorrect2D(pix_color, 0.8, 0.1)
-    //CorrectedImg=estCorrect2D(orgImg, 0.8, 0.1);
-    Mat hvCorrectedImg; 
-
-
-    estCorrect2D(orgImg, hvCorrectedImg, 0.8, 0.1);
-
-    imwrite("test.png", hvCorrectedImg);
-
-    //test();
-
-    /*
-
-    Mat image;
-    image = imread( argv[1], 1 );
-
-    if ( !image.data )
-    {
-        printf("No image data \n");
+    if (orgImg.empty()) {
+        printf("Could not open or find the image.\n");
         return -1;
     }
-    namedWindow("Display Image", WINDOW_AUTOSIZE );
-    imshow("Display Image", image);
-    */
+
+    // Process the image
+    Mat hvCorrectedImg; 
+    estCorrect2D(orgImg, hvCorrectedImg, 0.8, 0.1);
+
+    // Extract the prefix from the input filename
+    std::string inputPath = argv[1];
+    std::string prefix;
+    size_t lastSlash = inputPath.find_last_of("/\\");
+    size_t start = (lastSlash == std::string::npos) ? 0 : lastSlash + 1;
+    size_t lastDot = inputPath.find_last_of(".");
+    size_t end = (lastDot == std::string::npos || lastDot < start) ? inputPath.length() : lastDot;
+    prefix = inputPath.substr(start, end - start);
+
+    // Construct the output filename
+    std::string outputPath = prefix + "_rect.jpg";
+
+    // Save the processed image
+    if (imwrite(outputPath, hvCorrectedImg)) {
+        printf("Output image saved as %s\n", outputPath.c_str());
+    } else {
+        printf("Failed to save the output image.\n");
+        return -1;
+    }
+
+    // Optionally display the image
+    // namedWindow("Corrected Image", WINDOW_AUTOSIZE );
+    // imshow("Corrected Image", hvCorrectedImg);
 
     waitKey(0);
     return 0;
 }
+
