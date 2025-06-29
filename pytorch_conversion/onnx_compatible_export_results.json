@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-06-29T16:37:30.878856",
+  "device": "cpu",
+  "model_type": "ONNX-Compatible",
+  "exports": {
+    "onnx_compatible_128x128": {
+      "success": false,
+      "error": "Export failed"
+    },
+    "onnx_compatible_256x256": {
+      "success": false,
+      "error": "Export failed"
+    }
+  }
+}

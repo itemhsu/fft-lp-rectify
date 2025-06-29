@@ -1,0 +1,18 @@
+{
+  "timestamp": "2025-06-29T16:30:13.449279",
+  "device": "cpu",
+  "exports": {
+    "standard_256x256": {
+      "success": false,
+      "error": "Exporting the operator 'aten::rot90' to ONNX opset version 20 is not supported. Please feel free to request support or submit a pull request on PyTorch GitHub: https://github.com/pytorch/pytorch/issues."
+    },
+    "standard_512x512": {
+      "success": false,
+      "error": "Exporting the operator 'aten::rot90' to ONNX opset version 20 is not supported. Please feel free to request support or submit a pull request on PyTorch GitHub: https://github.com/pytorch/pytorch/issues."
+    },
+    "compact_128x128": {
+      "success": false,
+      "error": "Exporting the operator 'aten::rot90' to ONNX opset version 20 is not supported. Please feel free to request support or submit a pull request on PyTorch GitHub: https://github.com/pytorch/pytorch/issues."
+    }
+  }
+}

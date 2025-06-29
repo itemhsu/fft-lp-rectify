@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-06-29T16:40:51.755323",
+  "export_path": "/home/itemhsu/amtk/fft-lp-rectify/pytorch_conversion/tai_lprect_final_working.onnx",
+  "input_shape": [
+    1,
+    3,
+    256,
+    256
+  ],
+  "output_shape": [
+    1,
+    3,
+    256,
+    256
+  ],
+  "opset_version": 20,
+  "validation": {
+    "max_difference": 0.0003676414489746094,
+    "mean_difference": 1.9021625121240504e-05,
+    "success": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-29T12:50:44.780116",
+  "step_5_onnx_export": {
+    "success": true,
+    "onnx_files_created": [
+      "tai_lprect_model.onnx",
+      "simple_test.onnx",
+      "tai_lprect_final.onnx",
+      "minimal_test.onnx"
+    ],
+    "final_model_path": "/home/itemhsu/amtk/fft-lp-rectify/pytorch_conversion/tai_lprect_final.onnx",
+    "model_size_bytes": 1740
+  }
+}
